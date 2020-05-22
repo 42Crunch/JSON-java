@@ -100,7 +100,8 @@ import java.util.regex.Pattern;
  * @author JSON.org
  * @version 2016-08-15
  */
-public class JSONObject {
+public class JSONObject extends JSONTrack {
+
     /**
      * JSONObject.NULL is equivalent to the value that JavaScript calls null,
      * whilst Java's null is equivalent to the value that JavaScript calls
@@ -214,9 +215,11 @@ public class JSONObject {
      *             duplicated key.
      */
     public JSONObject(JSONTokener x) throws JSONException {
+
         this();
         char c;
         String key;
+        long offset, column, line;
 
         if (x.nextClean() != '{') {
             throw x.syntaxError("A JSONObject text must begin with '{'");
@@ -230,7 +233,10 @@ public class JSONObject {
                 return;
             default:
                 x.back();
-                key = x.nextValue().toString();
+                key = x.nextValue(true).toString();
+                offset = x.getOffset();
+                column = x.getColumn();
+                line = x.getLine();
             }
 
             // The key is followed by ':'.
@@ -251,6 +257,10 @@ public class JSONObject {
                 // Only add value if non-null
                 Object value = x.nextValue();
                 if (value!=null) {
+                    JSONTrack tracker = (JSONTrack) value;
+                    tracker.setOffset(offset);
+                    tracker.setColumn(column);
+                    tracker.setLine(line);
                     this.put(key, value);
                 }
             }
@@ -2227,6 +2237,9 @@ public class JSONObject {
      */
     public static void testValidity(Object o) throws JSONException {
         if (o != null) {
+            if (o instanceof JSONValue) {
+                o = ((JSONValue) o).getValue();
+            }
             if (o instanceof Double) {
                 if (((Double) o).isInfinite() || ((Double) o).isNaN()) {
                     throw new JSONException(
@@ -2574,7 +2587,19 @@ public class JSONObject {
         }
         return results;
     }
-    
+
+    /**
+     * Returns original tree with classes containing track information for corresponding keys.
+     * Also it is faster as we do not need to run extra iteration for data converting.
+     * <p>
+     * Warning: This method assumes that the data structure is acyclical.
+     *
+     * @return a java.util.Map containing the JSON based entries of this object with track data
+     */
+    public Map<String, Object> toJsonMap() {
+        return map;
+    }
+
     /**
      * Create a new JSONException in a common format for incorrect conversions.
      * @param key name of the key

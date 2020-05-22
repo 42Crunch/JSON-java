@@ -124,6 +124,18 @@ public class JSONTokener {
         }
     }
 
+    public long getOffset() {
+        return index;
+    }
+
+    public long getColumn() {
+        return character;
+    }
+
+    public long getLine() {
+        return line;
+    }
+
     /**
      * Get the hex value of a character (base16).
      * @param c A character between '0' and '9' or between 'A' and 'F' or
@@ -410,6 +422,9 @@ public class JSONTokener {
         }
     }
 
+    public Object nextValue() throws JSONException {
+        return nextValue(false);
+    }
 
     /**
      * Get the next value. The value can be a Boolean, Double, Integer,
@@ -418,14 +433,15 @@ public class JSONTokener {
      *
      * @return An object.
      */
-    public Object nextValue() throws JSONException {
+    public Object nextValue(boolean isKey) throws JSONException {
         char c = this.nextClean();
         String string;
 
         switch (c) {
         case '"':
         case '\'':
-            return this.nextString(c);
+            String value = this.nextString(c);
+            return isKey ? value : new JSONValue(value);
         case '{':
             this.back();
             return new JSONObject(this);
@@ -455,8 +471,9 @@ public class JSONTokener {
         string = sb.toString().trim();
         if ("".equals(string)) {
             throw this.syntaxError("Missing value");
-        }
-        return JSONObject.stringToValue(string);
+       }
+
+       return new JSONValue(JSONObject.stringToValue(string));
     }
 
 
