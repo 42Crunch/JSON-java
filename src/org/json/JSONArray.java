@@ -122,7 +122,25 @@ public class JSONArray extends JSONTrack implements Iterable<Object> {
                     this.myArrayList.add(JSONObject.NULL);
                 } else {
                     x.back();
-                    this.myArrayList.add(x.nextValue());
+                    long offset = x.getOffset();
+                    long column = x.getColumn();
+                    long line = x.getLine();
+                    Object value = x.nextValue();
+                    if (value != null) {
+                        if (value instanceof JSONValue) {
+                            JSONTrack tracker = (JSONTrack) value;
+                            tracker.setOffset(x.getOffset());
+                            tracker.setColumn(x.getColumn());
+                            tracker.setLine(x.getLine());
+                        }
+                        else {
+                            JSONTrack tracker = (JSONTrack) value;
+                            tracker.setOffset(offset + 1);
+                            tracker.setColumn(column + 1);
+                            tracker.setLine(line);
+                        }
+                        this.myArrayList.add(value);
+                    }
                 }
                 switch (x.nextClean()) {
                 case 0:

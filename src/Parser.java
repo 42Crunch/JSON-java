@@ -26,8 +26,14 @@ public class Parser {
         }
 
         if (root instanceof JSONArray) {
+            int index = 0;
             for (Object o : (JSONArray) root) {
+                System.out.println(emptyPadding + "arr [" + index + "]" +
+                        " (line = " + ((JSONTrack) o).getLine() +
+                        " column = " + ((JSONTrack) o).getColumn() +
+                        " offset = " + ((JSONTrack) o).getOffset() + ")");
                 jsonDfsTraversal(o, emptyPadding + "  ");
+                index++;
             }
             return;
         }
