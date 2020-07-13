@@ -5,7 +5,8 @@ public class JSONTrack {
 
     private long line = 0;
     private long column = 0;
-    private long offset = 0;
+    private long startOffset = 0;
+    private long endOffset = 0;
 
     public long getLine() {
         return line;
@@ -23,11 +24,29 @@ public class JSONTrack {
         this.column = column;
     }
 
-    public long getOffset() {
-        return offset;
+    public long getStartOffset() {
+        return startOffset;
     }
 
+    public void setStartOffset(long startOffset) {
+        this.startOffset = startOffset;
+    }
+
+    public long getEndOffset() {
+        return endOffset;
+    }
+
+    public void setEndOffset(long endOffset) {
+        this.endOffset = endOffset;
+    }
+
+    @Deprecated
+    public long getOffset() {
+        return getEndOffset();
+    }
+
+    @Deprecated
     public void setOffset(long offset) {
-        this.offset = offset;
+        setEndOffset(offset);
     }
 }

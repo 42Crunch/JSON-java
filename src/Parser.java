@@ -18,7 +18,8 @@ public class Parser {
                 String print = emptyPadding + entry.getKey() +
                         " (line = " + ((JSONTrack) entry.getValue()).getLine() +
                         " column = " + ((JSONTrack) entry.getValue()).getColumn() +
-                        " offset = " + ((JSONTrack) entry.getValue()).getOffset() + "): ";
+                        " startOffset = " + ((JSONTrack) entry.getValue()).getStartOffset() +
+                        " endOffset = " + ((JSONTrack) entry.getValue()).getEndOffset() + "): ";
                 System.out.println(print);
                 jsonDfsTraversal(entry.getValue(), emptyPadding + "  ");
             }
@@ -31,7 +32,8 @@ public class Parser {
                 System.out.println(emptyPadding + "arr [" + index + "]" +
                         " (line = " + ((JSONTrack) o).getLine() +
                         " column = " + ((JSONTrack) o).getColumn() +
-                        " offset = " + ((JSONTrack) o).getOffset() + ")");
+                        " startOffset = " + ((JSONTrack) o).getStartOffset() +
+                        " endOffset = " + ((JSONTrack) o).getEndOffset() + ")");
                 jsonDfsTraversal(o, emptyPadding + "  ");
                 index++;
             }
@@ -48,7 +50,7 @@ public class Parser {
 
         String text = null;
         try {
-            text = Files.readString(Paths.get("petstore.json"), StandardCharsets.UTF_8);
+            text = Files.readString(Paths.get("c.json"), StandardCharsets.UTF_8);
             // System.out.println(text);
         } catch (IOException e) {
             e.printStackTrace();

@@ -224,6 +224,12 @@ public class JSONObject extends JSONTrack {
         if (x.nextClean() != '{') {
             throw x.syntaxError("A JSONObject text must begin with '{'");
         }
+        else {
+            setLine(x.getLine());
+            setColumn(x.getColumn());
+            setStartOffset(x.getOffset() - 1);
+            setEndOffset(x.getOffset());
+        }
         for (;;) {
             c = x.nextClean();
             switch (c) {
@@ -258,9 +264,10 @@ public class JSONObject extends JSONTrack {
                 Object value = x.nextValue();
                 if (value!=null) {
                     JSONTrack tracker = (JSONTrack) value;
-                    tracker.setOffset(offset);
-                    tracker.setColumn(column);
                     tracker.setLine(line);
+                    tracker.setColumn(column);
+                    tracker.setStartOffset(offset - key.length() - 1);
+                    tracker.setEndOffset(offset - 1);
                     this.put(key, value);
                 }
             }
