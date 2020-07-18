@@ -81,7 +81,7 @@ import java.util.Map;
  * @author JSON.org
  * @version 2016-08/15
  */
-public class JSONArray extends JSONTrack implements Iterable<Object> {
+public class JSONArray extends LocationHolder implements Iterable<Object> {
 
     /**
      * The arrayList where the JSONArray's properties are kept.
@@ -105,6 +105,7 @@ public class JSONArray extends JSONTrack implements Iterable<Object> {
      */
     public JSONArray(JSONTokener x) throws JSONException {
         this();
+        boolean addLocation = x.isAddLocation();
         if (x.nextClean() != '[') {
             throw x.syntaxError("A JSONArray text must start with '['");
         }
@@ -122,26 +123,26 @@ public class JSONArray extends JSONTrack implements Iterable<Object> {
                     this.myArrayList.add(JSONObject.NULL);
                 } else {
                     x.back();
-                    long offset = x.getOffset();
-                    long column = x.getColumn();
-                    long line = x.getLine();
-                    Object value = x.nextValue();
-                    if (value != null) {
-                        JSONTrack tracker = (JSONTrack) value;
-                        if (value instanceof JSONValue) {
-                            int n = ((String) ((JSONValue) value).getValue()).length();
-                            tracker.setLine(x.getLine());
-                            tracker.setColumn(x.getColumn() - n);
-                            tracker.setStartOffset(x.getOffset() - n - 1);
-                            tracker.setEndOffset(x.getOffset() - 1);
+                    if (addLocation) {
+                        long offset = x.getOffset();
+                        long column = x.getColumn();
+                        long line = x.getLine();
+                        Object value = x.nextValue();
+                        if (value != null) {
+                            if (value instanceof JSONValue) {
+                                int n = ((String) ((JSONValue) value).getValue()).length();
+                                ((LocationHolder) value).setLocation(
+                                        new JSONLocation(x.getLine(), x.getColumn() - n,
+                                                x.getOffset() - n - 1, x.getOffset() - 1));
+                            } else {
+                                ((LocationHolder) value).setLocation(
+                                        new JSONLocation(line, column + 1, offset, offset + 1));
+                            }
+                            this.myArrayList.add(value);
                         }
-                        else {
-                            tracker.setLine(line);
-                            tracker.setColumn(column + 1);
-                            tracker.setStartOffset(offset);
-                            tracker.setEndOffset(offset + 1);
-                        }
-                        this.myArrayList.add(value);
+                    }
+                    else {
+                        this.myArrayList.add(x.nextValue());
                     }
                 }
                 switch (x.nextClean()) {

@@ -100,7 +100,7 @@ import java.util.regex.Pattern;
  * @author JSON.org
  * @version 2016-08-15
  */
-public class JSONObject extends JSONTrack {
+public class JSONObject extends LocationHolder {
 
     /**
      * JSONObject.NULL is equivalent to the value that JavaScript calls null,
@@ -219,16 +219,16 @@ public class JSONObject extends JSONTrack {
         this();
         char c;
         String key;
-        long offset, column, line;
+        long offset = 0, column = 0, line = 0;
+        boolean addLocation = x.isAddLocation();
 
         if (x.nextClean() != '{') {
             throw x.syntaxError("A JSONObject text must begin with '{'");
         }
         else {
-            setLine(x.getLine());
-            setColumn(x.getColumn());
-            setStartOffset(x.getOffset() - 1);
-            setEndOffset(x.getOffset());
+            if (addLocation) {
+                setLocation(new JSONLocation(x.getLine(), x.getColumn(), x.getOffset() - 1, x.getOffset()));
+            }
         }
         for (;;) {
             c = x.nextClean();
@@ -239,10 +239,15 @@ public class JSONObject extends JSONTrack {
                 return;
             default:
                 x.back();
-                key = x.nextValue(true).toString();
-                offset = x.getOffset();
-                column = x.getColumn();
-                line = x.getLine();
+                if (addLocation) {
+                    key = x.nextValue(true).toString();
+                    offset = x.getOffset();
+                    column = x.getColumn();
+                    line = x.getLine();
+                }
+                else {
+                    key = x.nextValue().toString();
+                }
             }
 
             // The key is followed by ':'.
@@ -262,12 +267,11 @@ public class JSONObject extends JSONTrack {
                 }
                 // Only add value if non-null
                 Object value = x.nextValue();
-                if (value!=null) {
-                    JSONTrack tracker = (JSONTrack) value;
-                    tracker.setLine(line);
-                    tracker.setColumn(column);
-                    tracker.setStartOffset(offset - key.length() - 1);
-                    tracker.setEndOffset(offset - 1);
+                if (value != null) {
+                    if (addLocation) {
+                        ((LocationHolder) value).setLocation(new JSONLocation(
+                                line, column, offset - key.length() - 1, offset - 1));
+                    }
                     this.put(key, value);
                 }
             }
@@ -421,6 +425,10 @@ public class JSONObject extends JSONTrack {
      */
     public JSONObject(String source) throws JSONException {
         this(new JSONTokener(source));
+    }
+
+    public static JSONObject parseWithLocation(String source) throws JSONException {
+        return new JSONObject(new JSONTokener(source, true));
     }
 
     /**

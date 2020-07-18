@@ -55,7 +55,7 @@ public class JSONTokener {
     private boolean usePrevious;
     /** the number of characters read in the previous line. */
     private long characterPreviousLine;
-
+    private boolean addLocation;
 
     /**
      * Construct a JSONTokener from a Reader. The caller must close the Reader.
@@ -72,9 +72,14 @@ public class JSONTokener {
         this.index = 0;
         this.character = 1;
         this.characterPreviousLine = 0;
-        this.line = 1;
+        this.line = 0;
+        this.addLocation = false;
     }
 
+    public JSONTokener(Reader reader, boolean addLocation) {
+        this(reader);
+        this.addLocation = addLocation;
+    }
 
     /**
      * Construct a JSONTokener from an InputStream. The caller must close the input stream.
@@ -83,7 +88,6 @@ public class JSONTokener {
     public JSONTokener(InputStream inputStream) {
         this(new InputStreamReader(inputStream));
     }
-
 
     /**
      * Construct a JSONTokener from a string.
@@ -94,6 +98,13 @@ public class JSONTokener {
         this(new StringReader(s));
     }
 
+    public JSONTokener(String s, boolean addLocation) {
+        this(new StringReader(s), addLocation);
+    }
+
+    public boolean isAddLocation() {
+        return addLocation;
+    }
 
     /**
      * Back up one character. This provides a sort of lookahead capability,
@@ -441,7 +452,12 @@ public class JSONTokener {
         case '"':
         case '\'':
             String value = this.nextString(c);
-            return isKey ? value : new JSONValue(value);
+            if (addLocation) {
+                return isKey ? value : new JSONValue(value);
+            }
+            else {
+                return value;
+            }
         case '{':
             this.back();
             return new JSONObject(this);
@@ -473,7 +489,7 @@ public class JSONTokener {
             throw this.syntaxError("Missing value");
        }
 
-       return new JSONValue(JSONObject.stringToValue(string));
+       return addLocation ? new JSONValue(JSONObject.stringToValue(string)) : JSONObject.stringToValue(string);
     }
 
 

@@ -1,7 +1,4 @@
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTrack;
-import org.json.JSONValue;
+import org.json.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,50 +12,46 @@ public class Parser {
 
         if (root instanceof JSONObject) {
             for (Map.Entry<String, Object> entry : ((JSONObject) root).toJsonMap().entrySet()) {
-                String print = emptyPadding + entry.getKey() +
-                        " (line = " + ((JSONTrack) entry.getValue()).getLine() +
-                        " column = " + ((JSONTrack) entry.getValue()).getColumn() +
-                        " startOffset = " + ((JSONTrack) entry.getValue()).getStartOffset() +
-                        " endOffset = " + ((JSONTrack) entry.getValue()).getEndOffset() + "): ";
-                System.out.println(print);
+                String msg = emptyPadding + entry.getKey();
+                if (entry.getValue() instanceof LocationHolder) {
+                    msg += " " + ((LocationHolder) entry.getValue()).getLocation();
+                }
+                System.out.println(msg);
                 jsonDfsTraversal(entry.getValue(), emptyPadding + "  ");
             }
-            return;
         }
-
-        if (root instanceof JSONArray) {
+        else if (root instanceof JSONArray) {
             int index = 0;
             for (Object o : (JSONArray) root) {
-                System.out.println(emptyPadding + "arr [" + index + "]" +
-                        " (line = " + ((JSONTrack) o).getLine() +
-                        " column = " + ((JSONTrack) o).getColumn() +
-                        " startOffset = " + ((JSONTrack) o).getStartOffset() +
-                        " endOffset = " + ((JSONTrack) o).getEndOffset() + ")");
+                String msg = emptyPadding + "array [" + index + "]";
+                if (o instanceof LocationHolder) {
+                    msg += " " + ((LocationHolder) o).getLocation();
+                }
+                System.out.println(msg);
                 jsonDfsTraversal(o, emptyPadding + "  ");
                 index++;
             }
-            return;
         }
-
-        // Always a leaf node for a primitive type
-        if (root instanceof JSONValue) {
-            System.out.println(emptyPadding + "* " + ((JSONValue) root).getValue());
+        else {
+            String msg = emptyPadding;
+            if (root instanceof JSONValue) {
+                msg += "+ " + ((JSONValue) root).getValue();
+            }
+            else {
+                msg += "+ " + root;
+            }
+            System.out.println(msg);
         }
     }
 
     public static void main(String[] args) {
-
-        String text = null;
         try {
-            text = Files.readString(Paths.get("c.json"), StandardCharsets.UTF_8);
-            // System.out.println(text);
+            String text = Files.readString(Paths.get("c.json"), StandardCharsets.UTF_8);
+            //JSONObject object = new JSONObject(text);
+            JSONObject object = JSONObject.parseWithLocation(text);
+            jsonDfsTraversal(object, "");
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        JSONObject object = new JSONObject(text);
-        // System.out.println(object);
-
-        jsonDfsTraversal(object, "");
     }
 }
