@@ -1,0 +1,45 @@
+{
+  "swagger": "2.0",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/hello": {
+      "get": {
+        "parameters": [
+          {
+            "required": true,
+            "type": "string",
+            "name": "one",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "name": "two",
+            "in": "path"
+          },
+          {
+            "required": true,
+            "type": "string",
+            "name": "three",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "host": "xkcd.com",
+  "basePath": "/",
+  "info": {
+    "description": "Webcomic of romance, sarcasm, math, and language.",
+    "title": "XKCD",
+    "version": "1.0.0"
+  }
+
+}
