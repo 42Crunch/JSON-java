@@ -130,10 +130,18 @@ public class JSONArray extends LocationHolder implements Iterable<Object> {
                         Object value = x.nextValue();
                         if (value != null) {
                             if (value instanceof JSONValue) {
-                                int n = ((String) ((JSONValue) value).getValue()).length();
-                                ((LocationHolder) value).setLocation(
-                                        new JSONLocation(x.getLine(), x.getColumn() - n,
-                                                x.getOffset() - n - 1, x.getOffset() - 1));
+                                Object tmp = ((JSONValue) value).getValue();
+                                int n = tmp.toString().length();
+                                if (tmp instanceof String) {
+                                    ((LocationHolder) value).setLocation(
+                                            new JSONLocation(x.getLine(), x.getColumn() - n,
+                                                    x.getOffset() - n - 1, x.getOffset() - 1));
+                                }
+                                else {
+                                    ((LocationHolder) value).setLocation(
+                                            new JSONLocation(x.getLine(), x.getColumn() - n,
+                                                    x.getOffset() - n, x.getOffset()));
+                                }
                             } else {
                                 ((LocationHolder) value).setLocation(
                                         new JSONLocation(line, column + 1, offset, offset + 1));

@@ -77,6 +77,49 @@ public class JSONLocationTest {
     }
 
     @Test
+    public void jsonObjectTrickyWithLocation2() throws IOException {
+
+        JSONObject object = JSONObject.parseWithLocation(getTextFromFile("test1.json"));
+
+        JSONLocation location = object.getLocation();
+        assertTrue((location != null) && location.toString().contains("<line 0, column 2, offset (0, 1)>"));
+
+        Set<String> items = new HashSet<>();
+        jsonDfsTraversal(object, items, true);
+
+        assertEquals(29, items.size());
+        assertTrue(items.contains("array [3] <line 7, column 6, offset (108, 109)>"));
+        assertTrue(items.contains("+ID"));
+        assertTrue(items.contains("swagger <line 1, column 11, offset (5, 12)>"));
+        assertTrue(items.contains("+10"));
+        assertTrue(items.contains("array [4] <line 8, column 6, offset (117, 118)>"));
+        assertTrue(items.contains("+12"));
+        assertTrue(items.contains("array [2] <line 13, column 8, offset (179, 186)>"));
+        assertTrue(items.contains("array [1] <line 12, column 6, offset (166, 170)>"));
+        assertTrue(items.contains("array [1] <line 5, column 9, offset (86, 88)>"));
+        assertTrue(items.contains("enum <line 4, column 10, offset (68, 72)>"));
+        assertTrue(items.contains("array [0] <line 11, column 6, offset (154, 158)>"));
+        assertTrue(items.contains("array [4] <line 15, column 6, offset (208, 218)>"));
+        assertTrue(items.contains("type <line 3, column 10, offset (46, 50)>"));
+        assertTrue(items.contains("+5678989080"));
+        assertTrue(items.contains("+1"));
+        assertTrue(items.contains("+4"));
+        assertTrue(items.contains("+6"));
+        assertTrue(items.contains("+true"));
+        assertTrue(items.contains("abc <line 10, column 9, offset (140, 143)>"));
+        assertTrue(items.contains("array [5] <line 8, column 14, offset (125, 127)>"));
+        assertTrue(items.contains("array [0] <line 5, column 6, offset (83, 84)>"));
+        assertTrue(items.contains("+false"));
+        assertTrue(items.contains("array [2] <line 6, column 8, offset (97, 99)>"));
+        assertTrue(items.contains("+xxxxxxx"));
+        assertTrue(items.contains("array [3] <line 14, column 6, offset (195, 200)>"));
+        assertTrue(items.contains("+string"));
+        assertTrue(items.contains("+2.0"));
+        assertTrue(items.contains("+1.02"));
+        assertTrue(items.contains("paymentForm <line 2, column 15, offset (25, 36)>"));
+    }
+
+    @Test
     public void jsonObjectTrickyWithLocation() throws IOException {
 
         JSONObject object = JSONObject.parseWithLocation(getTextFromFile("jsonpointer-testdoc-crlf.json"));
@@ -87,7 +130,6 @@ public class JSONLocationTest {
         Set<String> items = new HashSet<>();
         jsonDfsTraversal(object, items, true);
 
-        //print(items);
         assertTrue(items.contains("+val"));
         assertTrue(items.contains("+baz"));
         assertTrue(items.contains("c%d <line 9, column 7, offset (82, 85)>"));

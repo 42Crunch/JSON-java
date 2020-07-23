@@ -1,0 +1,19 @@
+{
+  "swagger": "2.0",
+  "paymentForm": {
+    "type": "string",
+    "enum": [
+      1, 10,
+      "ID",
+      6,
+      4,      12
+    ],
+    "abc": [
+      1.02,
+      true,
+      "xxxxxxx",
+      false,
+      5678989080
+    ]
+  }
+}
